@@ -3,17 +3,18 @@
 #include <iostream>
 #include <set>
 #include <unordered_set>
-#include <GameCommon/Logger.hpp>
 
 // INNER
 #include "Engine/Device.hpp"
+#include <GameCommon/Logger.hpp>
+#include <GameCommon/Config.hpp>
 
 namespace Engine {
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback( VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                                                          VkDebugUtilsMessageTypeFlagsEXT messageType,
                                                          const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
                                                          void *pUserData) {
-        Logger::Error( OSS << "validation layer: " << pCallbackData->pMessage << "\n");
+        Logger::Debug( OSS << "VK_DEBUG -> " << pCallbackData->pMessage);
         return VK_FALSE;
     }
 
@@ -69,9 +70,9 @@ namespace Engine {
 
         VkApplicationInfo appInfo = {};
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-        appInfo.pApplicationName = "LittleVulkanEngine App";
+        appInfo.pApplicationName = GAME_NAME;
         appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-        appInfo.pEngineName = "No Engine";
+        appInfo.pEngineName = GAME_ENGINE_NAME;
         appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
         appInfo.apiVersion = VK_API_VERSION_1_0;
 
@@ -109,7 +110,7 @@ namespace Engine {
         if (deviceCount == 0) {
             throw std::runtime_error("failed to find GPUs with Vulkan support!");
         }
-        Logger::Info( OSS << "Device count: " << deviceCount );
+        Logger::Info( OSS << "Device count : " << deviceCount );
         std::vector<VkPhysicalDevice> devices(deviceCount);
         vkEnumeratePhysicalDevices(mInstance, &deviceCount, devices.data());
 
@@ -125,7 +126,7 @@ namespace Engine {
         }
 
         vkGetPhysicalDeviceProperties(mPhysicalDevice, &mProperties);
-        Logger::Info( OSS << "physical device: " << mProperties.deviceName );
+        Logger::Info( OSS << "Physical device : \033[1;36m" << mProperties.deviceName << "\033[0m" );
     }
 
     void Device::createLogicalDevice() {
@@ -189,7 +190,7 @@ namespace Engine {
     }
 
     void Device::createSurface() {
-        Engine::Window::getWindow().createWindowSurface(mInstance, &mSurface);
+        G_WINDOW.createWindowSurface(mInstance, &mSurface);
     }
 
     bool Device::isDeviceSuitable(VkPhysicalDevice device) {

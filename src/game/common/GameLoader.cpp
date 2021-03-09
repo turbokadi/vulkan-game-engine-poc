@@ -4,8 +4,8 @@
 
 namespace Game {
     GameLoader::GameLoader() {
-        Engine::Window::getWindow().setupWindow(800, 600, GAME_NAME);
-        Engine::Window::getWindow().open();
+        G_WINDOW.setupWindow(800, 600, GAME_NAME);
+        G_WINDOW.open();
         GameEngine::getEngine().init();
     }
 
@@ -13,7 +13,7 @@ namespace Game {
     }
 
     void GameLoader::run() {
-        while (!Engine::Window::getWindow().shouldClose()) {
+        while (!G_WINDOW.shouldClose()) {
             glfwPollEvents();
         }
     }

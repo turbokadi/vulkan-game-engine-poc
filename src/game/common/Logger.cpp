@@ -6,11 +6,11 @@
 #include <chrono>
 
 std::array<std::string, 5> Logger::LogTypeStr {{
-"INFO",
-"WARNING",
-"ERROR",
-"FATAL",
-"DEBUG"
+"\033[1;36mINFO\033[0m",
+"\033[1;33mWARNING\033[0m",
+"\033[1;31mERROR\033[0m",
+"\033[1;31mFATAL\033[0m",
+"\033[1;35mDEBUG\033[0m"
 }};
 
 // TODO Implement thread collector
