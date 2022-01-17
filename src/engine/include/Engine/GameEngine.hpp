@@ -9,6 +9,9 @@
 #include <Engine/Device.hpp>
 #include <Engine/Pipeline.hpp>
 #include <Engine/SwapChain.hpp>
+#include <Engine/Model.hpp>
+
+#define G_ENGINE GameEngine::getEngine()
 
 class GameEngine {
 public:
@@ -21,6 +24,7 @@ private:
     GameEngine();
     ~GameEngine();
 
+    void loadModels();
     void createPipelineLayout();
     void createPipeline();
     void createCommandBuffers();
@@ -31,6 +35,7 @@ private:
     std::unique_ptr<Engine::Pipeline> mPipeline;
     VkPipelineLayout mPipelineLayout;
     std::vector<VkCommandBuffer> mCommandBuffers;
+    std::unique_ptr<Engine::Model> mModel;
 
 public:
     GameEngine(GameEngine const&) = delete;

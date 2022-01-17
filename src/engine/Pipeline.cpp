@@ -7,6 +7,7 @@
 //INNER
 #include <GameCommon/Logger.hpp>
 #include <Engine/Device.hpp>
+#include <Engine/Model.hpp>
 
 namespace Engine {
     Pipeline::Pipeline(Device& pDevice, const PipelineConfigInfo& pConfigInfo, const std::string& pVertFilePath, const std::string& pFragmentFilePath) : mDevice(pDevice) {
@@ -36,7 +37,7 @@ namespace Engine {
         return buffer;
     }
 
-    void Pipeline::createGraphicsPipeline(const std::string &pVertFilePath, const std::string &pFragmentFilePath, const PipelineConfigInfo& pConfigInfo) {
+    void Pipeline::createGraphicsPipeline(const std::string& pVertFilePath, const std::string& pFragmentFilePath, const PipelineConfigInfo& pConfigInfo) {
         auto vertCode{readFile(pVertFilePath)};
         auto fragCode{readFile(pFragmentFilePath)};
 
@@ -64,12 +65,15 @@ namespace Engine {
         shaderStages[1].pName = "main";
         shaderStages[1].pSpecializationInfo = nullptr;
 
+        auto bindingDescriptions = Model::Vertex::getBindingDescriptions();
+        auto attributesDescriptions = Model::Vertex::getAttributeDescriptions();
+
         VkPipelineVertexInputStateCreateInfo  vertexInputInfo = {};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertexInputInfo.vertexBindingDescriptionCount = 0;
-        vertexInputInfo.pVertexBindingDescriptions = nullptr;
-        vertexInputInfo.vertexAttributeDescriptionCount = 0;
-        vertexInputInfo.pVertexAttributeDescriptions = nullptr;
+        vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(bindingDescriptions.size());
+        vertexInputInfo.pVertexBindingDescriptions = bindingDescriptions.data();
+        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributesDescriptions.size());
+        vertexInputInfo.pVertexAttributeDescriptions = attributesDescriptions.data();
 
         VkPipelineViewportStateCreateInfo viewportInfo;
         viewportInfo = {};
@@ -193,7 +197,7 @@ namespace Engine {
     }
 
     void Pipeline::bind(VkCommandBuffer pCommandBuffer) {
-        if (pCommandBuffer != nullptr) {
+        if (pCommandBuffer == nullptr) {
             throw std::runtime_error("Empty command Buffer ...");
         }
         vkCmdBindPipeline(pCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mGraphicsPipeline);

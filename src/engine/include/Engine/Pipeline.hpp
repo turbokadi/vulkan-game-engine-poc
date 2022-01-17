@@ -29,7 +29,7 @@ namespace Engine {
         ~Pipeline();
 
         Pipeline(const Pipeline&) = delete;
-        void operator=(const Pipeline&) = delete;
+        Pipeline& operator=(const Pipeline&) = delete;
 
         void bind(VkCommandBuffer pCommandBuffer);
         static PipelineConfigInfo defaultPipelineConfigInfo(uint32_t pWidth, uint32_t pHeight);

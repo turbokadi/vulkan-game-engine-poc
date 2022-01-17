@@ -7,6 +7,7 @@
 #include <Engine/Pipeline.hpp>
 
 GameEngine::GameEngine() {
+    loadModels();
     createPipelineLayout();
     createPipeline();
     createCommandBuffers();
@@ -17,6 +18,12 @@ GameEngine::~GameEngine() {
 }
 
 void GameEngine::init() {
+    while (!G_WINDOW.shouldClose()) {
+        glfwPollEvents();
+        drawFrame();
+    }
+
+    vkDeviceWaitIdle(mDevice.device());
 }
 
 void GameEngine::createPipelineLayout() {
@@ -56,7 +63,7 @@ void GameEngine::createCommandBuffers() {
         throw std::runtime_error("failed to allocate command buffers !");
     }
 
-    for (int i=0; mCommandBuffers.size(); i++) {
+    for (size_t i=0; i < mCommandBuffers.size(); i++) {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -81,7 +88,8 @@ void GameEngine::createCommandBuffers() {
         vkCmdBeginRenderPass(mCommandBuffers[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
         mPipeline->bind(mCommandBuffers[i]);
-        vkCmdDraw(mCommandBuffers[i], 3, 1, 0, 0);
+        mModel->bind(mCommandBuffers[i]);
+        mModel->draw(mCommandBuffers[i]);
 
         vkCmdEndRenderPass(mCommandBuffers[i]);
         if (vkEndCommandBuffer(mCommandBuffers[i]) != VK_SUCCESS) {
@@ -91,5 +99,24 @@ void GameEngine::createCommandBuffers() {
 }
 
 void GameEngine::drawFrame() {
+    uint32_t imageIndex;
+    auto result = mSwapChain.acquireNextImage(&imageIndex);
 
+    if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) { // TODO resize event
+        throw std::runtime_error("failed to acquire swap chain image !");
+    }
+
+    result = mSwapChain.submitCommandBuffers(&mCommandBuffers[imageIndex], &imageIndex);
+    if (result != VK_SUCCESS) {
+        throw std::runtime_error("failed to present swap chain image !");
+    }
+}
+
+void GameEngine::loadModels() {
+    std::vector<Engine::Model::Vertex> vertices {
+            {{0.0f, -0.5f}},
+            {{0.5f, 0.5f}},
+            {{-0.5f, 0.5f}},
+    };
+    mModel = std::make_unique<Engine::Model>(mDevice,vertices);
 }
